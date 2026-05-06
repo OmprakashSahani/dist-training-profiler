@@ -1,6 +1,9 @@
 import argparse
 
-from dist_profiler.analysis.memory import estimate_memory_usage
+from dist_profiler.analysis.memory import (
+    analyze_gpu_fit,
+    estimate_memory_usage,
+)
 from dist_profiler.simulation.training_step import simulate_training_step
 
 
@@ -21,6 +24,7 @@ def main() -> None:
     parser.add_argument("--bytes-per-param", type=int, default=2)
     parser.add_argument("--activation-multiplier", type=float, default=1.5)
     parser.add_argument("--optimizer-multiplier", type=float, default=2.0)
+    parser.add_argument("--gpu-memory", type=float, default=80)
 
     args = parser.parse_args()
 
@@ -38,6 +42,11 @@ def main() -> None:
         bytes_per_param=args.bytes_per_param,
         activation_multiplier=args.activation_multiplier,
         optimizer_multiplier=args.optimizer_multiplier,
+    )
+
+    gpu_fit = analyze_gpu_fit(
+        total_memory_gb=memory_result["total_memory_gb"],
+        gpu_memory_gb=args.gpu_memory,
     )
 
     print("Distributed Training Profiler")
@@ -62,6 +71,15 @@ def main() -> None:
     print(f"Optimizer Memory: {memory_result['optimizer_memory_gb']:.2f} GB")
     print(f"Activation Memory: {memory_result['activation_memory_gb']:.2f} GB")
     print(f"Total Memory: {memory_result['total_memory_gb']:.2f} GB")
+
+    print("\nGPU Fit Analysis")
+    print("-" * 40)
+
+    fit_status = "YES" if gpu_fit["fits"] else "NO"
+
+    print(f"GPU Memory: {args.gpu_memory:.2f} GB")
+    print(f"Fits on GPU: {fit_status}")
+    print(f"Memory Utilization: {gpu_fit['utilization']:.2f}x")
 
 
 if __name__ == "__main__":

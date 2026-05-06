@@ -12,19 +12,13 @@ def estimate_memory_usage(
 
     num_parameters = num_parameters_billion * 1e9
 
-    parameter_memory_gb = (
-        num_parameters * bytes_per_param
-    ) / (1024**3)
+    parameter_memory_gb = (num_parameters * bytes_per_param) / (1024**3)
 
     gradient_memory_gb = parameter_memory_gb
 
-    optimizer_memory_gb = (
-        parameter_memory_gb * optimizer_multiplier
-    )
+    optimizer_memory_gb = parameter_memory_gb * optimizer_multiplier
 
-    activation_memory_gb = (
-        parameter_memory_gb * activation_multiplier
-    )
+    activation_memory_gb = parameter_memory_gb * activation_multiplier
 
     total_memory_gb = (
         parameter_memory_gb
@@ -39,4 +33,21 @@ def estimate_memory_usage(
         "optimizer_memory_gb": optimizer_memory_gb,
         "activation_memory_gb": activation_memory_gb,
         "total_memory_gb": total_memory_gb,
+    }
+
+
+def analyze_gpu_fit(
+    total_memory_gb: float,
+    gpu_memory_gb: float,
+) -> dict:
+    """
+    Determine whether training fits within GPU memory.
+    """
+
+    fits = total_memory_gb <= gpu_memory_gb
+    utilization = total_memory_gb / gpu_memory_gb
+
+    return {
+        "fits": fits,
+        "utilization": utilization,
     }
