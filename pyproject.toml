@@ -1,0 +1,27 @@
+[build-system]
+requires = ["setuptools>=61", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "dist-training-profiler"
+version = "0.1.0"
+description = "Distributed training profiler for ML systems analysis"
+readme = "README.md"
+requires-python = ">=3.10"
+license = { text = "MIT" }
+
+authors = [
+  { name = "Omprakash Sahani", email = "Omprakash.Sahani7991@gmail.com" }
+]
+
+dependencies = [
+  "rich",
+  "matplotlib",
+]
+
+[project.scripts]
+dist-profiler = "dist_profiler.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["dist_profiler*"]
