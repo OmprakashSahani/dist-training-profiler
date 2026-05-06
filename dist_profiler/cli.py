@@ -1,5 +1,6 @@
 import argparse
 
+from dist_profiler.analysis.memory import estimate_memory_usage
 from dist_profiler.simulation.training_step import simulate_training_step
 
 
@@ -16,9 +17,14 @@ def main() -> None:
     parser.add_argument("--compute-time", type=float, default=120)
     parser.add_argument("--overlap", type=float, default=0.3)
 
+    parser.add_argument("--model-size", type=float, default=7)
+    parser.add_argument("--bytes-per-param", type=int, default=2)
+    parser.add_argument("--activation-multiplier", type=float, default=1.5)
+    parser.add_argument("--optimizer-multiplier", type=float, default=2.0)
+
     args = parser.parse_args()
 
-    result = simulate_training_step(
+    training_result = simulate_training_step(
         num_workers=args.workers,
         tensor_size_mb=args.tensor_size,
         bandwidth_gbps=args.bandwidth,
@@ -27,16 +33,35 @@ def main() -> None:
         overlap_factor=args.overlap,
     )
 
-    print("Distributed Training Profiler")
-    print(f"Workers: {args.workers}")
-    print()
+    memory_result = estimate_memory_usage(
+        num_parameters_billion=args.model_size,
+        bytes_per_param=args.bytes_per_param,
+        activation_multiplier=args.activation_multiplier,
+        optimizer_multiplier=args.optimizer_multiplier,
+    )
 
-    print(f"Compute Time: {result['compute_time_ms']:.2f} ms")
-    print(f"Communication Time: {result['communication_time_ms']:.2f} ms")
-    print(f"Effective Communication: {result['effective_communication_ms']:.2f} ms")
-    print(f"Total Step Time: {result['total_step_time_ms']:.2f} ms")
-    print(f"Communication Ratio: {result['communication_ratio']:.2f}")
-    print(f"Bottleneck: {result['bottleneck']}")
+    print("Distributed Training Profiler")
+    print("=" * 40)
+
+    print("\nTraining Step Analysis")
+    print("-" * 40)
+
+    print(f"Workers: {args.workers}")
+    print(f"Compute Time: {training_result['compute_time_ms']:.2f} ms")
+    print(f"Communication Time: {training_result['communication_time_ms']:.2f} ms")
+    print(f"Total Step Time: {training_result['total_step_time_ms']:.2f} ms")
+    print(f"Communication Ratio: {training_result['communication_ratio']:.2f}")
+    print(f"Bottleneck: {training_result['bottleneck']}")
+
+    print("\nMemory Analysis")
+    print("-" * 40)
+
+    print(f"Model Size: {args.model_size}B parameters")
+    print(f"Parameter Memory: {memory_result['parameter_memory_gb']:.2f} GB")
+    print(f"Gradient Memory: {memory_result['gradient_memory_gb']:.2f} GB")
+    print(f"Optimizer Memory: {memory_result['optimizer_memory_gb']:.2f} GB")
+    print(f"Activation Memory: {memory_result['activation_memory_gb']:.2f} GB")
+    print(f"Total Memory: {memory_result['total_memory_gb']:.2f} GB")
 
 
 if __name__ == "__main__":
