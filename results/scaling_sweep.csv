@@ -1,0 +1,9 @@
+workers,total_step_ms,communication_ms,communication_ratio,speedup,scaling_efficiency,bottleneck
+1,120.00,0.00,0.00,1.00,1.00,compute-bound
+2,135.07,21.53,0.11,0.89,0.44,compute-bound
+4,144.71,35.30,0.17,0.83,0.21,compute-bound
+8,153.73,48.18,0.22,0.78,0.10,compute-bound
+16,166.63,66.62,0.28,0.72,0.05,compute-bound
+32,189.89,99.84,0.37,0.63,0.02,compute-bound
+
+Training remains compute-bound across tested worker counts.

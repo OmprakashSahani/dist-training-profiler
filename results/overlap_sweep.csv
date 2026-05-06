@@ -1,0 +1,5 @@
+overlap,total_step_ms,effective_communication_ms,communication_ratio,bottleneck
+0.0,186.62,66.62,0.36,compute-bound
+0.3,166.63,46.63,0.28,compute-bound
+0.6,146.65,26.65,0.18,compute-bound
+0.9,126.66,6.66,0.05,compute-bound
