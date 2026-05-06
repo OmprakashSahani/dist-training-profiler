@@ -8,6 +8,8 @@ WORKERS = [1, 2, 4, 8, 16, 32]
 def run_sweep() -> list[dict]:
     results = []
 
+    baseline_step_time = None
+
     for workers in WORKERS:
         result = simulate_training_step(
             num_workers=workers,
@@ -19,6 +21,16 @@ def run_sweep() -> list[dict]:
         )
 
         result["workers"] = workers
+
+        if workers == 1:
+            baseline_step_time = result["total_step_time_ms"]
+
+        speedup = baseline_step_time / result["total_step_time_ms"]
+        scaling_efficiency = speedup / workers
+
+        result["speedup"] = speedup
+        result["scaling_efficiency"] = scaling_efficiency
+
         results.append(result)
 
     return results
@@ -27,7 +39,10 @@ def run_sweep() -> list[dict]:
 def main():
     results = run_sweep()
 
-    print("workers,total_step_ms,communication_ms,communication_ratio,bottleneck")
+    print(
+        "workers,total_step_ms,communication_ms,"
+        "communication_ratio,speedup,scaling_efficiency,bottleneck"
+    )
 
     for result in results:
         print(
@@ -35,6 +50,8 @@ def main():
             f"{result['total_step_time_ms']:.2f},"
             f"{result['communication_time_ms']:.2f},"
             f"{result['communication_ratio']:.2f},"
+            f"{result['speedup']:.2f},"
+            f"{result['scaling_efficiency']:.2f},"
             f"{result['bottleneck']}"
         )
 
