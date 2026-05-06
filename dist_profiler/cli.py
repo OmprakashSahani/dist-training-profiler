@@ -4,6 +4,7 @@ from dist_profiler.analysis.memory import (
     analyze_gpu_fit,
     estimate_memory_usage,
 )
+from dist_profiler.analysis.zero import simulate_zero_memory
 from dist_profiler.simulation.training_step import simulate_training_step
 
 
@@ -49,11 +50,19 @@ def main() -> None:
         gpu_memory_gb=args.gpu_memory,
     )
 
+    zero_result = simulate_zero_memory(
+        parameter_memory_gb=memory_result["parameter_memory_gb"],
+        gradient_memory_gb=memory_result["gradient_memory_gb"],
+        optimizer_memory_gb=memory_result["optimizer_memory_gb"],
+        activation_memory_gb=memory_result["activation_memory_gb"],
+        num_workers=args.workers,
+    )
+
     print("Distributed Training Profiler")
-    print("=" * 40)
+    print("=" * 50)
 
     print("\nTraining Step Analysis")
-    print("-" * 40)
+    print("-" * 50)
 
     print(f"Workers: {args.workers}")
     print(f"Compute Time: {training_result['compute_time_ms']:.2f} ms")
@@ -63,7 +72,7 @@ def main() -> None:
     print(f"Bottleneck: {training_result['bottleneck']}")
 
     print("\nMemory Analysis")
-    print("-" * 40)
+    print("-" * 50)
 
     print(f"Model Size: {args.model_size}B parameters")
     print(f"Parameter Memory: {memory_result['parameter_memory_gb']:.2f} GB")
@@ -73,13 +82,21 @@ def main() -> None:
     print(f"Total Memory: {memory_result['total_memory_gb']:.2f} GB")
 
     print("\nGPU Fit Analysis")
-    print("-" * 40)
+    print("-" * 50)
 
     fit_status = "YES" if gpu_fit["fits"] else "NO"
 
     print(f"GPU Memory: {args.gpu_memory:.2f} GB")
     print(f"Fits on GPU: {fit_status}")
     print(f"Memory Utilization: {gpu_fit['utilization']:.2f}x")
+
+    print("\nZeRO Memory Optimization")
+    print("-" * 50)
+
+    print(f"Baseline Memory: {zero_result['baseline_gb']:.2f} GB")
+    print(f"ZeRO-1 Memory:  {zero_result['zero1_gb']:.2f} GB")
+    print(f"ZeRO-2 Memory:  {zero_result['zero2_gb']:.2f} GB")
+    print(f"ZeRO-3 Memory:  {zero_result['zero3_gb']:.2f} GB")
 
 
 if __name__ == "__main__":
