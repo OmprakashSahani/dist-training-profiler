@@ -31,6 +31,14 @@ This project simulates and analyzes distributed training behavior through a syst
 
 ---
 
+## Architecture
+
+<p align="center">
+  <img src="/results/profiler-architecture.png"/>
+</p>
+
+---
+
 ## Quick Demo
 
 ```bash
@@ -123,24 +131,6 @@ Scaling efficiency degrades as synchronization and communication costs dominate 
 - ZeRO-1 / ZeRO-2 / ZeRO-3 memory optimization modeling
 - Scaling sweep benchmarks
 - Scaling curve visualization
-
----
-
-## Architecture
-
-```mermaid
-flowchart TD
-    A[CLI Input] --> B[Training Step Simulator]
-    B --> C[Communication Model]
-    B --> D[Memory Model]
-    C --> E[Scaling Analysis]
-    D --> F[GPU Fit Analysis]
-    D --> G[ZeRO Optimization]
-    E --> H[Bottleneck Detection]
-    H --> I[Benchmark Results]
-    F --> I
-    G --> I
-```
 
 ---
 
